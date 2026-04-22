@@ -5,20 +5,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let users = []; // store users
+let users = [];
+let reports = [];
 
-// 🔐 SIGNUP
+// SIGNUP
 app.post("/signup", (req, res) => {
   const { email, password } = req.body;
 
-  let exist = users.find(u => u.email === email);
-  if (exist) return res.json({ error: "User already exists" });
+  if (users.find(u => u.email === email)) {
+    return res.json({ error: "User exists" });
+  }
 
   users.push({ email, password });
-  res.json({ message: "Signup successful" });
+  res.json({ message: "Signup success" });
 });
 
-// 🔐 LOGIN
+// LOGIN
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -26,12 +28,32 @@ app.post("/login", (req, res) => {
 
   if (!user) return res.json({ error: "Invalid login" });
 
-  res.json({ message: "Login success", user });
+  res.json({ user });
 });
 
-// TEST
+// SAVE REPORT
+app.post("/save-report", (req, res) => {
+  const { email, url, score, speed } = req.body;
+
+  reports.push({
+    email,
+    url,
+    score,
+    speed,
+    date: new Date()
+  });
+
+  res.json({ message: "Saved" });
+});
+
+// GET REPORTS
+app.get("/reports/:email", (req, res) => {
+  let userReports = reports.filter(r => r.email === req.params.email);
+  res.json(userReports);
+});
+
 app.get("/", (req,res)=>{
-  res.send("API Running 🚀");
+  res.send("SEO API Running 🚀");
 });
 
 app.listen(3000, () => console.log("Server running 🚀"));
